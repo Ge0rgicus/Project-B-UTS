@@ -5,31 +5,27 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 
-// This file holds all the domain classes for the lolly shop.
-// These are the "building blocks" that the Model uses to store
-// and manage data. None of these classes know about the GUI.
+// This file has all the domain classes - the "things" the app works with.
+// None of these classes touch the GUI, they just store and manage data.
 
-// Enum for lolly size - using an enum means we can't accidentally
-// pass in a random string like "medium" or "med", it has to be
-// one of these three values
+// Enum for lolly size - limits choices to LARGE, MEDIUM or SMALL only
 enum LollySize {
     LARGE, MEDIUM, SMALL
 }
 
-// Payable interface - both CardPayment and CashPayment implement this
-// so we can treat them the same way when processing a payment
+// Interface - any class that implements this must have a processPayment method
 interface Payable {
     boolean processPayment();
 }
 
-// Main lolly class - stores all the info about a single lolly
+// A single lolly with name, size, colour and price
 class Lollies {
     private String name;
     private LollySize size;
     private String colour;
     private double price;
 
-    // Full constructor - used when we know all the details
+    // Full constructor - all details provided
     public Lollies(String name, LollySize size, String colour, double price) {
         this.name = name;
         this.size = size;
@@ -37,8 +33,8 @@ class Lollies {
         this.price = price;
     }
 
-    // Overloaded constructor - if size and colour aren't given we use defaults
-    // This is method overloading: same method name, different parameters
+    // Overloaded constructor - no size or colour given, so we use defaults
+    // Same method name, different parameters = method overloading
     public Lollies(String name, double price) {
         this(name, LollySize.MEDIUM, "Unknown", price);
     }
@@ -48,15 +44,14 @@ class Lollies {
     public String getColour()  { return colour; }
     public double getPrice()   { return price; }
 
-    // toString formats the lolly nicely for display in the ListView
+    // Used to display each lolly as a line in the ListView
     @Override
     public String toString() {
         return name + " | " + size + " | " + colour + " | $" + String.format("%.2f", price);
     }
 }
 
-// LollyDetails extends Lollies to add dietary info
-// This shows inheritance - LollyDetails IS-A Lollies but with extra fields
+// LollyDetails IS-A Lollies but adds dietary info (inheritance)
 class LollyDetails extends Lollies {
     private boolean sugarFree;
     private boolean glutenFree;
@@ -68,30 +63,29 @@ class LollyDetails extends Lollies {
         this.glutenFree = glutenFree;
     }
 
-    // Override toString to also show the dietary info
+    // Add dietary info to the normal display string
     @Override
     public String toString() {
         return super.toString() + " | SugarFree=" + sugarFree + " | GlutenFree=" + glutenFree;
     }
 }
 
-// Manages the list of lollies currently in stock
-// Uses an ArrayList to store them and a HashMap to count stock levels
+// Holds all lollies currently in stock
+// ArrayList stores them, HashMap is used to count stock by name
 class LollyInventory {
     private ArrayList<Lollies> stock = new ArrayList<Lollies>();
-    private int lowStockThreshold = 2; // warn if a lolly has 2 or fewer left
+    private int lowStockThreshold = 2; // warn if 2 or fewer left
 
     public void addLolly(Lollies lolly) {
         stock.add(lolly);
     }
 
-    // Overloaded version - add by name and price only
+    // Overloaded - add by name and price only, no other details needed
     public void addLolly(String name, double price) {
         addLolly(new Lollies(name, price));
     }
 
-    // Remove the first lolly found with this name
-    // We only remove one at a time because one sale = one lolly
+    // Remove one lolly with this name (one sale = one lolly removed)
     public void removeLolly(String name) {
         for (int i = 0; i < stock.size(); i++) {
             if (stock.get(i).getName().equalsIgnoreCase(name)) {
@@ -101,7 +95,7 @@ class LollyInventory {
         }
     }
 
-    // Find and return a lolly by name, or null if it doesn't exist
+    // Find a lolly by name, returns null if not found
     public Lollies getLolly(String name) {
         for (Lollies lolly : stock) {
             if (lolly.getName().equalsIgnoreCase(name)) {
@@ -115,7 +109,7 @@ class LollyInventory {
         return stock;
     }
 
-    // Sort the stock list alphabetically by name
+    // Sort stock alphabetically by name
     public void sortByName() {
         Collections.sort(stock, new Comparator<Lollies>() {
             public int compare(Lollies a, Lollies b) {
@@ -124,7 +118,7 @@ class LollyInventory {
         });
     }
 
-    // Sort by size (LARGE first, then MEDIUM, then SMALL)
+    // Sort by size (LARGE first, SMALL last)
     public void sortBySize() {
         Collections.sort(stock, new Comparator<Lollies>() {
             public int compare(Lollies a, Lollies b) {
@@ -133,8 +127,8 @@ class LollyInventory {
         });
     }
 
-    // Build a HashMap of lolly name -> how many are in stock
-    // We use a HashMap here so we can quickly look up counts by name
+    // Build a HashMap of name -> how many are in stock
+    // HashMap lets us look up counts by name quickly
     public HashMap<String, Integer> getStockCount() {
         HashMap<String, Integer> count = new HashMap<String, Integer>();
         for (Lollies lolly : stock) {
@@ -153,12 +147,10 @@ class LollyInventory {
 }
 
 // Tracks completed sales and applies a 10% discount
-// LolliesRecommended extends this class
 class LollySales {
     protected ArrayList<Lollies> sold = new ArrayList<Lollies>();
     protected double discountRate = 0.10;
 
-    // Work out the discounted price
     public double applyDiscount(double price) {
         return price - (price * discountRate);
     }
@@ -172,12 +164,12 @@ class LollySales {
     }
 }
 
-// Extends LollySales to add recommendation logic
-// It overrides applyDiscount to give 20% off for recommended lollies
-// Shares the sold list with LollySales so recommendations reflect real sales
+// Extends LollySales to add recommendations based on past sales
+// Overrides applyDiscount to give 20% off instead of 10%
+// Same method name, different behaviour in subclass = method overriding
 class LolliesRecommended extends LollySales {
 
-    // Look through the sold list for a lolly matching the requested size
+    // Look through sold history for a lolly matching the requested size
     public Lollies recommendBySize(LollySize size) {
         for (Lollies lolly : sold) {
             if (lolly.getSize() == size) {
@@ -187,15 +179,14 @@ class LolliesRecommended extends LollySales {
         return null;
     }
 
-    // Override the discount - recommended lollies get 20% off instead of 10%
-    // This is method overriding: same method name, different behaviour in subclass
+    // Recommended lollies get 20% off instead of the usual 10%
     @Override
     public double applyDiscount(double price) {
         return price - (price * 0.20);
     }
 }
 
-// Simple customer class to store contact details
+// Stores basic customer info
 class Customer {
     private String name;
     private String email;
@@ -211,7 +202,7 @@ class Customer {
     }
 }
 
-// Base payment class - implements the Payable interface
+// Base payment class - implements Payable
 // CardPayment and CashPayment both extend this
 class Payment implements Payable {
     protected double amount;
@@ -220,13 +211,13 @@ class Payment implements Payable {
         this.amount = amount;
     }
 
-    // Default - subclasses override this with their own logic
+    // Subclasses override this with their own logic
     public boolean processPayment() {
         return true;
     }
 }
 
-// Card payment - always succeeds as long as a card number is entered
+// Card payment - succeeds as long as a card number was entered
 class CardPayment extends Payment {
     private String cardNumber;
 
@@ -250,13 +241,12 @@ class CashPayment extends Payment {
         this.cashGiven = cashGiven;
     }
 
-    // Check if the customer gave enough cash
+    // Returns false if the customer didn't give enough
     @Override
     public boolean processPayment() {
         return cashGiven >= amount;
     }
 
-    // Calculate how much change to give back
     public double getChange() {
         return cashGiven - amount;
     }

@@ -3,20 +3,16 @@ package Assignment2;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 
-// CONTROLLER - this sits between the View and the Model.
-// When the user clicks a button in the View, the Controller
-// reads the input, passes it to the Model, gets back a result,
-// and then tells the View what to update.
-//
-// The View never talks to the Model directly and the Model
-// never talks to the View directly - everything goes through here.
+// CONTROLLER - sits between the View and Model.
+// When a button is clicked, the Controller reads the input from the View,
+// sends it to the Model, gets a result back, and tells the View to update.
+// The View and Model never talk to each other directly.
 public class LollyController {
 
     private LollyModel model;
     private LollyView view;
 
-    // Store references to both the Model and View so we can
-    // pass messages between them
+    // Store both so we can pass messages between them
     public LollyController(LollyModel model, LollyView view) {
         this.model = model;
         this.view  = view;
@@ -24,12 +20,11 @@ public class LollyController {
 
 
     // SORT BY NAME button
-    // View fires the event -> Controller tells Model to sort
-    // -> Model sorts the list -> Controller tells View to refresh
+    // Controller tells Model to sort, then tells View to refresh
     public EventHandler<ActionEvent> getSortNameHandler() {
         return new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
-                String result = model.sortByName();  // Model does the work
+                String result = model.sortByName();  // Model does the sort
                 view.refreshInventory();             // View updates the list
                 view.setStatus(result);              // View shows the message
             }
@@ -50,17 +45,16 @@ public class LollyController {
 
 
     // CHECK LOW STOCK button
-    // Model returns an array of warning strings, we join them
-    // into one message and show it in the status bar
+    // Model returns warnings, Controller joins them into one string for the View
     public EventHandler<ActionEvent> getLowStockHandler() {
         return new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
-                String[] warnings = model.checkLowStock(); // ask the Model
+                String[] warnings = model.checkLowStock();
                 String message = "";
                 for (int i = 0; i < warnings.length; i++) {
                     message = message + warnings[i] + "   ";
                 }
-                view.setStatus(message); // show it in the View
+                view.setStatus(message);
             }
         };
     }
@@ -76,17 +70,16 @@ public class LollyController {
     }
 
 
-    // ADD LOLLY button (inside the add window)
+    // ADD LOLLY button (inside add window)
     // MVC flow:
-    //   1. Controller reads what the user typed using View's getters
-    //   2. Controller passes it all to the Model to validate and add
-    //   3. Model returns a result string
-    //   4. Controller shows the result in the add window
-    //   5. If it worked, refresh the inventory list and clear the form
+    //   1. Read what the user typed using View's getters
+    //   2. Send it to the Model to validate and add
+    //   3. Show the result in the add window
+    //   4. If it worked, refresh the list and close the form
     public EventHandler<ActionEvent> getAddLollyHandler() {
         return new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
-                // step 1: read input from the View
+                // step 1: read input from View
                 String name   = view.getAddName();
                 String colour = view.getAddColour();
                 String price  = view.getAddPrice();
@@ -95,15 +88,15 @@ public class LollyController {
                 // step 2: send to Model
                 String result = model.addLolly(name, colour, price, size);
 
-                // step 3: show the result
+                // step 3: show result
                 view.setAddStatus(result);
 
-                // step 4: if successful, update the View
+                // step 4: if it worked, update the View
                 if (result.startsWith("Added")) {
-                    view.refreshInventory();  // update the main list
-                    view.closeAddWindow();    // close the form
-                    view.clearAddFields();    // reset fields for next time
-                    view.setStatus(result);   // show success in main window
+                    view.refreshInventory();
+                    view.closeAddWindow();
+                    view.clearAddFields();
+                    view.setStatus(result);
                 }
             }
         };
@@ -121,20 +114,18 @@ public class LollyController {
 
 
     // REMOVE SELECTED button
-    // Gets the selected lolly name from the View, passes to Model,
-    // then refreshes the list
+    // Reads the selected lolly name from the View, passes to Model, refreshes list
     public EventHandler<ActionEvent> getRemoveHandler() {
         return new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
-                // read which lolly is selected in the ListView
                 String name = view.getSelectedLollyName();
                 if (name.isEmpty()) {
                     view.setStatus("Please click a lolly in the list first, then click Remove.");
                     return;
                 }
 
-                String result = model.removeLolly(name); // tell Model to remove it
-                view.refreshInventory();                 // update the list in the View
+                String result = model.removeLolly(name);
+                view.refreshInventory();
                 view.setStatus(result);
             }
         };
@@ -142,10 +133,10 @@ public class LollyController {
 
 
     // OPEN SALE WINDOW button
+    // Pre-fills the lolly name if something is already selected in the list
     public EventHandler<ActionEvent> getOpenSaleHandler() {
         return new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
-                // pre-fill the lolly name if something is selected in the list
                 String selectedName = view.getSelectedLollyName();
                 if (!selectedName.isEmpty()) {
                     view.prefillSaleName(selectedName);
@@ -156,34 +147,33 @@ public class LollyController {
     }
 
 
-    // PROCESS PAYMENT button (inside the sale window)
+    // PROCESS PAYMENT button (inside sale window)
     // MVC flow:
-    //   1. Controller reads lolly name, payment type, card/cash from View
-    //   2. Controller passes to Model which validates and processes it
-    //   3. Model returns a result string
-    //   4. Controller shows result in the sale window
-    //   5. If successful, refresh inventory, close window, clear fields
+    //   1. Read lolly name, payment type, card/cash from View
+    //   2. Send to Model to validate and process
+    //   3. Show result in sale window
+    //   4. If it worked, refresh inventory, close window, clear fields
     public EventHandler<ActionEvent> getMakeSaleHandler() {
         return new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
-                // step 1: read all the sale inputs from the View
+                // step 1: read all sale inputs from View
                 String name    = view.getSaleName();
                 String payment = view.getSalePayment();
                 String card    = view.getSaleCard();
                 String cash    = view.getSaleCash();
 
-                // step 2: pass to Model to do the work
+                // step 2: send to Model
                 String result = model.makeSale(name, payment, card, cash);
 
-                // step 3: show result in the sale window
+                // step 3: show result
                 view.setSaleStatus(result);
 
-                // step 4: if sale worked, update the View
+                // step 4: if sale worked, update View
                 if (result.startsWith("Sale complete")) {
-                    view.refreshInventory();  // sold lolly disappears from list
-                    view.closeSaleWindow();   // close the sale form
-                    view.clearSaleFields();   // reset for next sale
-                    view.setStatus(result);   // show success in main window
+                    view.refreshInventory();
+                    view.closeSaleWindow();
+                    view.clearSaleFields();
+                    view.setStatus(result);
                 }
             }
         };
@@ -211,14 +201,13 @@ public class LollyController {
 
 
     // GET RECOMMENDATION button
-    // MVC flow: View (user picks size) -> Controller (reads size)
-    //        -> Model (searches sold history) -> Controller -> View (shows result)
+    // Reads the chosen size from View, asks Model for a match, shows result in View
     public EventHandler<ActionEvent> getRecommendHandler() {
         return new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
-                String size = view.getRecSize();          // read from View
-                String result = model.recommendBySize(size); // ask the Model
-                view.setRecResult(result);                // show in View
+                String size = view.getRecSize();
+                String result = model.recommendBySize(size);
+                view.setRecResult(result);
             }
         };
     }
@@ -238,7 +227,7 @@ public class LollyController {
     public EventHandler<ActionEvent> getOpenSalesHandler() {
         return new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
-                view.showSalesWindow(); // View refreshes the list when it opens
+                view.showSalesWindow();
             }
         };
     }
@@ -264,15 +253,14 @@ public class LollyController {
     }
 
 
-    // FILTER button (inside the filter window)
-    // MVC flow: View (user types colour) -> Controller (reads it)
-    //        -> Model (searches inventory) -> Controller -> View (shows matches)
+    // FILTER button (inside filter window)
+    // Reads the colour from View, asks Model to search, shows results in View
     public EventHandler<ActionEvent> getFilterHandler() {
         return new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
-                String colour = view.getFilterColour();          // read from View
-                String[] results = model.filterByColour(colour); // ask the Model
-                view.refreshFilter(results);                     // show in View
+                String colour = view.getFilterColour();
+                String[] results = model.filterByColour(colour);
+                view.refreshFilter(results);
             }
         };
     }

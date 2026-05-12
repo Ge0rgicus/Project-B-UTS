@@ -11,14 +11,19 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+// VIEW - builds and manages all the windows the user sees.
+// It never does any logic itself - it just displays things and
+// passes button clicks to the Controller.
 public class LollyView extends Application {
 
     private LollyModel model;
     private LollyController controller;
 
+    // Main window fields
     private ListView<String> inventoryListView;
     private Label statusLabel;
 
+    // Add lolly window fields
     private TextField addNameField;
     private TextField addColourField;
     private TextField addPriceField;
@@ -26,6 +31,7 @@ public class LollyView extends Application {
     private Label addStatusLabel;
     private Stage addStage;
 
+    // Sale window fields
     private TextField saleNameField;
     private ComboBox<String> salePaymentCombo;
     private TextField saleCardField;
@@ -33,17 +39,22 @@ public class LollyView extends Application {
     private Label saleStatusLabel;
     private Stage saleStage;
 
+    // Recommend window fields
     private ComboBox<String> recSizeCombo;
     private Label recResultLabel;
     private Stage recStage;
 
+    // Sales history window fields
     private ListView<String> salesListView;
     private Stage salesStage;
 
+    // Filter window fields
     private TextField filterColourField;
     private ListView<String> filterListView;
     private Stage filterStage;
 
+    // start() is called by JavaFX when the app launches.
+    // We create the Model and Controller here, then build all windows.
     @Override
     public void start(Stage primaryStage) {
         model = new LollyModel();
@@ -56,11 +67,11 @@ public class LollyView extends Application {
         buildSalesWindow();
         buildFilterWindow();
 
-        refreshInventory();
-
+        refreshInventory(); // load starting data into the list
         primaryStage.show();
     }
 
+    // Builds the main window with the inventory list and all action buttons
     private void buildMainWindow(Stage stage) {
         Label titleLabel = new Label("Lolly Shop");
         titleLabel.setStyle("-fx-font-size: 18; -fx-font-weight: bold;");
@@ -70,11 +81,13 @@ public class LollyView extends Application {
         inventoryListView = new ListView<String>();
         inventoryListView.setPrefHeight(180);
 
+        // Sort and stock buttons in one row
         Button sortNameBtn = new Button("Sort by Name");
         Button sortSizeBtn = new Button("Sort by Size");
         Button lowStockBtn = new Button("Check Low Stock");
         HBox sortRow = new HBox(8, sortNameBtn, sortSizeBtn, lowStockBtn);
 
+        // Action buttons in one row
         Button addBtn = new Button("Add Lolly");
         Button removeBtn = new Button("Remove Selected");
         Button saleBtn = new Button("Make a Sale");
@@ -85,6 +98,7 @@ public class LollyView extends Application {
 
         statusLabel = new Label("Welcome to the Lolly Shop!");
 
+        // VBox stacks everything vertically with 10px gaps
         VBox layout = new VBox(10,
                 titleLabel,
                 inventoryLabel,
@@ -94,6 +108,7 @@ public class LollyView extends Application {
                 statusLabel);
         layout.setStyle("-fx-padding: 15;");
 
+        // Wire each button to its handler in the Controller
         sortNameBtn.setOnAction(controller.getSortNameHandler());
         sortSizeBtn.setOnAction(controller.getSortSizeHandler());
         lowStockBtn.setOnAction(controller.getLowStockHandler());
@@ -109,6 +124,7 @@ public class LollyView extends Application {
         stage.setScene(scene);
     }
 
+    // Builds the "Add Lolly" sub-window (hidden until the button is clicked)
     private void buildAddWindow() {
         Label title = new Label("Add a New Lolly");
         title.setStyle("-fx-font-weight: bold;");
@@ -150,6 +166,7 @@ public class LollyView extends Application {
         addStage.setScene(new Scene(layout, 300, 370));
     }
 
+    // Builds the "Make a Sale" sub-window
     private void buildSaleWindow() {
         Label title = new Label("Make a Sale");
         title.setStyle("-fx-font-weight: bold;");
@@ -188,9 +205,11 @@ public class LollyView extends Application {
 
         saleStage = new Stage();
         saleStage.setTitle("Make a Sale");
-        saleStage.setScene(new Scene(layout, 320, 360));
+        saleStage.setResizable(true);
+        saleStage.setScene(new Scene(layout, 350, 420));
     }
 
+    // Builds the "Recommend a Lolly" sub-window
     private void buildRecommendWindow() {
         Label title = new Label("Recommend a Lolly");
         title.setStyle("-fx-font-weight: bold;");
@@ -220,6 +239,7 @@ public class LollyView extends Application {
         recStage.setScene(new Scene(layout, 320, 200));
     }
 
+    // Builds the "Sales Record" sub-window
     private void buildSalesWindow() {
         Label title = new Label("Sales Record");
         title.setStyle("-fx-font-weight: bold;");
@@ -238,6 +258,7 @@ public class LollyView extends Application {
         salesStage.setScene(new Scene(layout, 450, 280));
     }
 
+    // Builds the "Filter by Colour" sub-window
     private void buildFilterWindow() {
         Label title = new Label("Filter by Colour");
         title.setStyle("-fx-font-weight: bold;");
@@ -267,6 +288,7 @@ public class LollyView extends Application {
         filterStage.setScene(new Scene(layout, 450, 290));
     }
 
+    // Clears the inventory list and reloads it from the Model
     public void refreshInventory() {
         inventoryListView.getItems().clear();
         String[] items = model.getInventoryList();
@@ -275,6 +297,7 @@ public class LollyView extends Application {
         }
     }
 
+    // Clears the sales list and reloads it from the Model
     public void refreshSales() {
         salesListView.getItems().clear();
         String[] items = model.getSalesList();
@@ -283,6 +306,7 @@ public class LollyView extends Application {
         }
     }
 
+    // Loads filter results into the filter window list
     public void refreshFilter(String[] results) {
         filterListView.getItems().clear();
         for (int i = 0; i < results.length; i++) {
@@ -290,6 +314,8 @@ public class LollyView extends Application {
         }
     }
 
+    // Show/hide methods for each sub-window
+    // showSalesWindow also refreshes the list before opening
     public void showAddWindow()    { addStage.show(); }
     public void closeAddWindow()   { addStage.hide(); }
     public void showSaleWindow()   { saleStage.show(); }
@@ -301,11 +327,13 @@ public class LollyView extends Application {
     public void showFilterWindow() { filterStage.show(); }
     public void closeFilterWindow(){ filterStage.hide(); }
 
+    // Update the status/result labels in each window
     public void setStatus(String message)     { statusLabel.setText(message); }
     public void setAddStatus(String message)  { addStatusLabel.setText(message); }
     public void setSaleStatus(String message) { saleStatusLabel.setText(message); }
     public void setRecResult(String message)  { recResultLabel.setText(message); }
 
+    // Getters - the Controller calls these to read what the user typed
     public String getAddName()    { return addNameField.getText().trim(); }
     public String getAddColour()  { return addColourField.getText().trim(); }
     public String getAddPrice()   { return addPriceField.getText().trim(); }
@@ -319,6 +347,8 @@ public class LollyView extends Application {
     public String getFilterColour() { return filterColourField.getText().trim(); }
     public String getRecSize()      { return recSizeCombo.getValue(); }
 
+    // Reads the selected item in the ListView and returns just the lolly name
+    // The list shows "Name | Size | Colour | Price" so we split on | and take the first part
     public String getSelectedLollyName() {
         String selected = inventoryListView.getSelectionModel().getSelectedItem();
         if (selected == null || selected.equals("Inventory is empty.")) {
@@ -327,6 +357,12 @@ public class LollyView extends Application {
         return selected.split("\\|")[0].trim();
     }
 
+    // Pre-fills the lolly name in the sale form if one was selected in the list
+    public void prefillSaleName(String name) {
+        saleNameField.setText(name);
+    }
+
+    // Reset the add form back to empty after a successful add
     public void clearAddFields() {
         addNameField.clear();
         addColourField.clear();
@@ -335,6 +371,7 @@ public class LollyView extends Application {
         addStatusLabel.setText("");
     }
 
+    // Reset the sale form back to empty after a successful sale
     public void clearSaleFields() {
         saleNameField.clear();
         saleCardField.clear();
