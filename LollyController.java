@@ -4,35 +4,30 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 
 // CONTROLLER - sits between the View and Model.
-// When a button is clicked, the Controller reads the input from the View,
-// sends it to the Model, gets a result back, and tells the View to update.
-// The View and Model never talk to each other directly.
+// The View and Model dont interact directly so this is used.
 public class LollyController {
 
     private LollyModel model;
     private LollyView view;
 
-    // Store both so we can pass messages between them
     public LollyController(LollyModel model, LollyView view) {
         this.model = model;
         this.view  = view;
     }
 
-
-    // SORT BY NAME button
     // Controller tells Model to sort, then tells View to refresh
     public EventHandler<ActionEvent> getSortNameHandler() {
         return new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
-                String result = model.sortByName();  // Model does the sort
-                view.refreshInventory();             // View updates the list
-                view.setStatus(result);              // View shows the message
+                String result = model.sortByName(); // Model does the sort
+                view.refreshInventory(); // View updates the list
+                view.setStatus(result); // View shows the message
             }
         };
     }
 
 
-    // SORT BY SIZE button - same pattern as sort by name
+    // Same as Name but for the Size
     public EventHandler<ActionEvent> getSortSizeHandler() {
         return new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
@@ -44,8 +39,9 @@ public class LollyController {
     }
 
 
-    // CHECK LOW STOCK button
-    // Model returns warnings, Controller joins them into one string for the View
+    // check low stock button
+    // Model returns warnings
+    // Controller joins them into one string for the View
     public EventHandler<ActionEvent> getLowStockHandler() {
         return new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
@@ -60,7 +56,7 @@ public class LollyController {
     }
 
 
-    // OPEN ADD WINDOW button - just tells the View to show the window
+    // Just tells the View to show the window
     public EventHandler<ActionEvent> getOpenAddHandler() {
         return new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
@@ -69,8 +65,6 @@ public class LollyController {
         };
     }
 
-
-    // ADD LOLLY button (inside add window)
     // MVC flow:
     //   1. Read what the user typed using View's getters
     //   2. Send it to the Model to validate and add
@@ -79,19 +73,19 @@ public class LollyController {
     public EventHandler<ActionEvent> getAddLollyHandler() {
         return new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
-                // step 1: read input from View
+                // Read input from View
                 String name   = view.getAddName();
                 String colour = view.getAddColour();
                 String price  = view.getAddPrice();
                 String size   = view.getAddSize();
 
-                // step 2: send to Model
+                // Send to Model
                 String result = model.addLolly(name, colour, price, size);
 
-                // step 3: show result
+                // Show result
                 view.setAddStatus(result);
 
-                // step 4: if it worked, update the View
+                // If it worked, update the View
                 if (result.startsWith("Added")) {
                     view.refreshInventory();
                     view.closeAddWindow();
@@ -103,7 +97,7 @@ public class LollyController {
     }
 
 
-    // CANCEL button in the add window
+    // Cancel button in the add window
     public EventHandler<ActionEvent> getCloseAddHandler() {
         return new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
@@ -113,8 +107,7 @@ public class LollyController {
     }
 
 
-    // REMOVE SELECTED button
-    // Reads the selected lolly name from the View, passes to Model, refreshes list
+    // The remove button reads the selected lolly name from the View, passes to Model, refreshes list
     public EventHandler<ActionEvent> getRemoveHandler() {
         return new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
@@ -132,8 +125,7 @@ public class LollyController {
     }
 
 
-    // OPEN SALE WINDOW button
-    // Pre-fills the lolly name if something is already selected in the list
+    // Prefills the lolly name if something is already selected in the list
     public EventHandler<ActionEvent> getOpenSaleHandler() {
         return new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
@@ -147,12 +139,7 @@ public class LollyController {
     }
 
 
-    // PROCESS PAYMENT button (inside sale window)
-    // MVC flow:
-    //   1. Read lolly name, payment type, card/cash from View
-    //   2. Send to Model to validate and process
-    //   3. Show result in sale window
-    //   4. If it worked, refresh inventory, close window, clear fields
+    // Process Payment button the same MVC flow as getAddLollyHandler()
     public EventHandler<ActionEvent> getMakeSaleHandler() {
         return new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
@@ -180,7 +167,7 @@ public class LollyController {
     }
 
 
-    // CANCEL button in the sale window
+    // Cancel button in the sale window
     public EventHandler<ActionEvent> getCloseSaleHandler() {
         return new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
@@ -190,7 +177,7 @@ public class LollyController {
     }
 
 
-    // OPEN RECOMMEND WINDOW button
+    // Open recommend window button
     public EventHandler<ActionEvent> getOpenRecHandler() {
         return new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
@@ -200,7 +187,7 @@ public class LollyController {
     }
 
 
-    // GET RECOMMENDATION button
+    // Get recommendation button
     // Reads the chosen size from View, asks Model for a match, shows result in View
     public EventHandler<ActionEvent> getRecommendHandler() {
         return new EventHandler<ActionEvent>() {
@@ -213,7 +200,7 @@ public class LollyController {
     }
 
 
-    // CLOSE button in the recommend window
+    // Close button in the recommend window
     public EventHandler<ActionEvent> getCloseRecHandler() {
         return new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
@@ -223,7 +210,7 @@ public class LollyController {
     }
 
 
-    // OPEN SALES WINDOW button
+    // Open sales window button
     public EventHandler<ActionEvent> getOpenSalesHandler() {
         return new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
@@ -233,7 +220,7 @@ public class LollyController {
     }
 
 
-    // CLOSE button in the sales window
+    // Cloise button in the sales window
     public EventHandler<ActionEvent> getCloseSalesHandler() {
         return new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
@@ -243,7 +230,7 @@ public class LollyController {
     }
 
 
-    // OPEN FILTER WINDOW button
+    // Open filter windowbutton
     public EventHandler<ActionEvent> getOpenFilterHandler() {
         return new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
@@ -253,7 +240,7 @@ public class LollyController {
     }
 
 
-    // FILTER button (inside filter window)
+    // Filter button (inside filter window)
     // Reads the colour from View, asks Model to search, shows results in View
     public EventHandler<ActionEvent> getFilterHandler() {
         return new EventHandler<ActionEvent>() {
@@ -266,7 +253,7 @@ public class LollyController {
     }
 
 
-    // CLOSE button in the filter window
+    // Close button in the filter window
     public EventHandler<ActionEvent> getCloseFilterHandler() {
         return new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {

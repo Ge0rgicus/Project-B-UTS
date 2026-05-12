@@ -13,7 +13,6 @@ enum LollySize {
     LARGE, MEDIUM, SMALL
 }
 
-// Interface - any class that implements this must have a processPayment method
 interface Payable {
     boolean processPayment();
 }
@@ -25,7 +24,6 @@ class Lollies {
     private String colour;
     private double price;
 
-    // Full constructor - all details provided
     public Lollies(String name, LollySize size, String colour, double price) {
         this.name = name;
         this.size = size;
@@ -33,8 +31,7 @@ class Lollies {
         this.price = price;
     }
 
-    // Overloaded constructor - no size or colour given, so we use defaults
-    // Same method name, different parameters = method overloading
+    // Overloaded constructor 
     public Lollies(String name, double price) {
         this(name, LollySize.MEDIUM, "Unknown", price);
     }
@@ -51,7 +48,7 @@ class Lollies {
     }
 }
 
-// LollyDetails IS-A Lollies but adds dietary info (inheritance)
+// LollyDetails IS-A Lollies but adds dietary info so it is an inheritance
 class LollyDetails extends Lollies {
     private boolean sugarFree;
     private boolean glutenFree;
@@ -80,12 +77,12 @@ class LollyInventory {
         stock.add(lolly);
     }
 
-    // Overloaded - add by name and price only, no other details needed
+    // add by name and price only, no other details needed
     public void addLolly(String name, double price) {
         addLolly(new Lollies(name, price));
     }
 
-    // Remove one lolly with this name (one sale = one lolly removed)
+    // Remove one lolly with this name 
     public void removeLolly(String name) {
         for (int i = 0; i < stock.size(); i++) {
             if (stock.get(i).getName().equalsIgnoreCase(name)) {
@@ -118,7 +115,7 @@ class LollyInventory {
         });
     }
 
-    // Sort by size (LARGE first, SMALL last)
+    // Sort by size 
     public void sortBySize() {
         Collections.sort(stock, new Comparator<Lollies>() {
             public int compare(Lollies a, Lollies b) {
@@ -127,7 +124,6 @@ class LollyInventory {
         });
     }
 
-    // Build a HashMap of name -> how many are in stock
     // HashMap lets us look up counts by name quickly
     public HashMap<String, Integer> getStockCount() {
         HashMap<String, Integer> count = new HashMap<String, Integer>();
@@ -165,8 +161,6 @@ class LollySales {
 }
 
 // Extends LollySales to add recommendations based on past sales
-// Overrides applyDiscount to give 20% off instead of 10%
-// Same method name, different behaviour in subclass = method overriding
 class LolliesRecommended extends LollySales {
 
     // Look through sold history for a lolly matching the requested size
@@ -202,8 +196,6 @@ class Customer {
     }
 }
 
-// Base payment class - implements Payable
-// CardPayment and CashPayment both extend this
 class Payment implements Payable {
     protected double amount;
 

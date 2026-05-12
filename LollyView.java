@@ -12,8 +12,6 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 // VIEW - builds and manages all the windows the user sees.
-// It never does any logic itself - it just displays things and
-// passes button clicks to the Controller.
 public class LollyView extends Application {
 
     private LollyModel model;
@@ -98,7 +96,6 @@ public class LollyView extends Application {
 
         statusLabel = new Label("Welcome to the Lolly Shop!");
 
-        // VBox stacks everything vertically with 10px gaps
         VBox layout = new VBox(10,
                 titleLabel,
                 inventoryLabel,
@@ -316,39 +313,38 @@ public class LollyView extends Application {
 
     // Show/hide methods for each sub-window
     // showSalesWindow also refreshes the list before opening
-    public void showAddWindow()    { addStage.show(); }
-    public void closeAddWindow()   { addStage.hide(); }
-    public void showSaleWindow()   { saleStage.show(); }
-    public void closeSaleWindow()  { saleStage.hide(); }
-    public void showRecWindow()    { recStage.show(); }
-    public void closeRecWindow()   { recStage.hide(); }
-    public void showSalesWindow()  { refreshSales(); salesStage.show(); }
-    public void closeSalesWindow() { salesStage.hide(); }
-    public void showFilterWindow() { filterStage.show(); }
+    public void showAddWindow(){ addStage.show(); }
+    public void closeAddWindow(){ addStage.hide(); }
+    public void showSaleWindow(){ saleStage.show(); }
+    public void closeSaleWindow(){ saleStage.hide(); }
+    public void showRecWindow(){ recStage.show(); }
+    public void closeRecWindow(){ recStage.hide(); }
+    public void showSalesWindow(){ refreshSales(); salesStage.show(); }
+    public void closeSalesWindow(){ salesStage.hide(); }
+    public void showFilterWindow(){ filterStage.show(); }
     public void closeFilterWindow(){ filterStage.hide(); }
 
     // Update the status/result labels in each window
-    public void setStatus(String message)     { statusLabel.setText(message); }
-    public void setAddStatus(String message)  { addStatusLabel.setText(message); }
-    public void setSaleStatus(String message) { saleStatusLabel.setText(message); }
-    public void setRecResult(String message)  { recResultLabel.setText(message); }
+    public void setStatus(String message){ statusLabel.setText(message); }
+    public void setAddStatus(String message){ addStatusLabel.setText(message); }
+    public void setSaleStatus(String message){ saleStatusLabel.setText(message); }
+    public void setRecResult(String message){ recResultLabel.setText(message); }
 
     // Getters - the Controller calls these to read what the user typed
-    public String getAddName()    { return addNameField.getText().trim(); }
-    public String getAddColour()  { return addColourField.getText().trim(); }
-    public String getAddPrice()   { return addPriceField.getText().trim(); }
-    public String getAddSize()    { return addSizeCombo.getValue(); }
+    public String getAddName(){ return addNameField.getText().trim(); }
+    public String getAddColour(){ return addColourField.getText().trim(); }
+    public String getAddPrice(){ return addPriceField.getText().trim(); }
+    public String getAddSize(){ return addSizeCombo.getValue(); }
 
-    public String getSaleName()    { return saleNameField.getText().trim(); }
-    public String getSalePayment() { return salePaymentCombo.getValue(); }
-    public String getSaleCard()    { return saleCardField.getText().trim(); }
-    public String getSaleCash()    { return saleCashField.getText().trim(); }
+    public String getSaleName(){ return saleNameField.getText().trim(); }
+    public String getSalePayment(){ return salePaymentCombo.getValue(); }
+    public String getSaleCard(){ return saleCardField.getText().trim(); }
+    public String getSaleCash(){ return saleCashField.getText().trim(); }
 
-    public String getFilterColour() { return filterColourField.getText().trim(); }
-    public String getRecSize()      { return recSizeCombo.getValue(); }
+    public String getFilterColour(){ return filterColourField.getText().trim(); }
+    public String getRecSize(){ return recSizeCombo.getValue(); }
 
     // Reads the selected item in the ListView and returns just the lolly name
-    // The list shows "Name | Size | Colour | Price" so we split on | and take the first part
     public String getSelectedLollyName() {
         String selected = inventoryListView.getSelectionModel().getSelectedItem();
         if (selected == null || selected.equals("Inventory is empty.")) {
@@ -357,7 +353,7 @@ public class LollyView extends Application {
         return selected.split("\\|")[0].trim();
     }
 
-    // Pre-fills the lolly name in the sale form if one was selected in the list
+    // Prefills the lolly name in the sale form if one was selected in the list
     public void prefillSaleName(String name) {
         saleNameField.setText(name);
     }

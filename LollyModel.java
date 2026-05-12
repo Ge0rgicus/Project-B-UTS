@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 // MODEL - handles all data and business logic.
-// It never touches the GUI. It just does the work and returns a result string.
+// It never touches the GUI.
 public class LollyModel {
 
-    private LollyInventory inventory;       // all lollies currently in stock
-    private LollySales sales;               // completed sales history
+    private LollyInventory inventory; // all lollies currently in stock
+    private LollySales sales; // completed sales history
     private LolliesRecommended recommended; // used for size-based recommendations
 
     // Set up with some starting data so the app isn't empty on launch
@@ -17,32 +17,30 @@ public class LollyModel {
         sales       = new LollySales();
         recommended = new LolliesRecommended();
 
-        // Starting stock
         inventory.addLolly(new Lollies("Rainbow Pop",  LollySize.LARGE,  "Rainbow", 4.50));
         inventory.addLolly(new Lollies("Rainbow Pop",  LollySize.LARGE,  "Rainbow", 4.50));
         inventory.addLolly(new Lollies("Choco Swirl",  LollySize.MEDIUM, "Brown",   3.20));
         inventory.addLolly(new Lollies("Mint Twist",   LollySize.SMALL,  "Green",   2.00));
         inventory.addLolly(new Lollies("Berry Blast",  LollySize.MEDIUM, "Red",     3.00));
 
-        // Starting sales so recommendations work right away
+        // So recommend has something to show when called
         recommended.recordSale(new Lollies("Mint Twist",  LollySize.SMALL,  "Green",   2.00));
         recommended.recordSale(new Lollies("Berry Blast", LollySize.MEDIUM, "Red",     3.00));
         recommended.recordSale(new Lollies("Rainbow Pop", LollySize.LARGE,  "Rainbow", 4.50));
     }
 
 
-    // ADD LOLLY
+    // Add Lolly
     // Called by the Controller with values the user typed in the add form.
     // Validates everything before adding to inventory.
-    // MVC flow: View (user fills form) -> Controller (reads fields)
-    //        -> Model (validates + adds) -> Controller -> View (shows result)
+    // MVC flow: View (user fills form) -> Controller (reads fields) -> Model (validates + adds) -> Controller -> View (shows result)
     public String addLolly(String name, String colour, String priceText, String sizeText) {
         // check nothing was left blank
         if (name.isEmpty() || colour.isEmpty() || priceText.isEmpty()) {
             return "Please fill in all fields.";
         }
 
-        // try to parse price - catch any non-number input
+        // try to parse price 
         double price;
         try {
             price = Double.parseDouble(priceText);
@@ -70,9 +68,7 @@ public class LollyModel {
 
 
     // REMOVE LOLLY
-    // Name comes from whatever is selected in the ListView.
-    // MVC flow: View (user selects + clicks Remove) -> Controller
-    //        -> Model (finds + removes) -> Controller -> View (refresh list)
+    // MVC flow: View (user selects + clicks Remove) -> Controller -> Model (finds + removes) -> Controller -> View (refresh list)
     public String removeLolly(String name) {
         if (name.isEmpty()) {
             return "Please select a lolly from the list first.";
@@ -88,11 +84,9 @@ public class LollyModel {
     }
 
 
-    // MAKE A SALE
-    // Handles card and cash payment, applies discount, records the sale
-    // and removes the lolly from stock.
-    // MVC flow: View (user fills sale form) -> Controller (reads fields)
-    //        -> Model (validates + processes) -> Controller -> View (shows result)
+    // The sale logic
+    // Handles card and cash payment, applies discount, records the sale and removes the lolly from stock.
+    // MVC flow: View (user fills sale form) -> Controller (reads fields) -> Model (validates + processes) -> Controller -> View (shows result)
     public String makeSale(String lollyName, String paymentType,
                            String cardNumber, String cashText) {
         if (lollyName.isEmpty()) {
@@ -179,26 +173,24 @@ public class LollyModel {
     }
 
 
-    // SORT BY NAME
-    // MVC flow: View (button click) -> Controller -> Model (sorts)
-    //        -> Controller -> View (calls refreshInventory)
+    // Sort by Name
+    // MVC flow: View (button click) -> Controller -> Model (sorts) -> Controller -> View (calls refreshInventory)
     public String sortByName() {
         inventory.sortByName();
         return "Sorted by name.";
     }
 
 
-    // SORT BY SIZE - same flow as sort by name
+    // Sort by SIze
+    // Has the same logic as Name
     public String sortBySize() {
         inventory.sortBySize();
         return "Sorted by size.";
     }
 
 
-    // FILTER BY COLOUR
-    // Builds a sub-list of lollies that match the given colour.
-    // MVC flow: View (user types colour) -> Controller
-    //        -> Model (searches stock) -> Controller -> View (shows results)
+    // Filter by Colour
+    // MVC flow: View (user types colour) -> Controller -> Model (searches stock) -> Controller -> View (shows results)
     public String[] filterByColour(String colour) {
         if (colour.isEmpty()) {
             return new String[]{"Please enter a colour."};
@@ -226,11 +218,9 @@ public class LollyModel {
     }
 
 
-    // CHECK LOW STOCK
-    // Uses a HashMap to count how many of each lolly are left,
-    // then warns about any at or below the threshold.
-    // MVC flow: View (button click) -> Controller -> Model (checks counts)
-    //        -> Controller -> View (shows warnings in status bar)
+    // Check low Stock
+    // Uses a HashMap to count how many of each lolly are left, then warns about any at or below the threshold.
+    // MVC flow: View (button click) -> Controller -> Model (checks counts) -> Controller -> View (shows warnings in status bar)
     public String[] checkLowStock() {
         HashMap<String, Integer> count = inventory.getStockCount();
         int threshold = inventory.getLowStockThreshold();
@@ -254,11 +244,9 @@ public class LollyModel {
     }
 
 
-    // RECOMMEND BY SIZE
+    // Recommend by Size
     // Searches sold history for a lolly matching the chosen size.
-    // Gets better over time as more sales are made.
-    // MVC flow: View (user picks size) -> Controller
-    //        -> Model (searches recommended list) -> Controller -> View
+    // MVC flow: View (user picks size) -> Controller -> Model (searches recommended list) -> Controller -> View
     public String recommendBySize(String sizeText) {
         LollySize size;
         if (sizeText.equals("LARGE")) {
